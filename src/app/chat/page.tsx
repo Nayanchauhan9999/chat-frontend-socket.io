@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { socket } from "@/app/socket/socket";
+import { socket } from "@/socket/socket";
 
 const ContactUs: React.FC = (): React.JSX.Element => {
   const [message, setMessage] = useState<string>("");
