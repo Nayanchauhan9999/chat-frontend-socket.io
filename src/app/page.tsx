@@ -7,6 +7,10 @@ export default function Home() {
         <Link href={"/file-upload"}>File Upload Demo</Link>
         <br />
         <Link href={"/chat"}>Contact Us</Link>
+        <br />
+        <Link href={"/login"}>Login</Link>
+        <br />
+        <Link href={"/signup"}>Sing Up</Link>
       </div>
     </main>
   );
