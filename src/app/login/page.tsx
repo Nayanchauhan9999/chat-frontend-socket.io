@@ -2,8 +2,12 @@
 import React from "react";
 import { loginSchema } from "@/utils/schema";
 import { useFormik } from "formik";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { ICommonResponse, IUser } from "@/utils/types/types";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const router = useRouter();
   const {
     values,
     handleBlur,
@@ -17,8 +21,24 @@ const Login = () => {
       email: "",
       password: "",
     },
-    onSubmit: (val) => {
-      console.log("val", val);
+    onSubmit: async (val) => {
+      try {
+        const res = await axios.post<
+          any,
+          AxiosResponse<ICommonResponse<IUser>>
+        >(process.env.NEXT_PUBLIC_BASE_URL + "auth/login", {
+          email: val.email,
+          password: val.password,
+        });
+
+        localStorage.setItem("user", JSON.stringify(res.data.data));
+        router.replace("/chat");
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          alert(error.response?.data?.message);
+        }
+        console.log("error", error);
+      }
     },
     validationSchema: loginSchema,
   });
@@ -51,7 +71,7 @@ const Login = () => {
                 name="email"
                 type="email"
                 autoComplete="email"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 placeholder:ps-4"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-4"
                 placeholder="email"
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -78,7 +98,7 @@ const Login = () => {
                 name="password"
                 type="password"
                 autoComplete="current-password"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 placeholder:ps-4"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ps-4"
                 placeholder="password"
                 onChange={handleChange}
                 onBlur={handleBlur}
