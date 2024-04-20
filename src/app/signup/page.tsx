@@ -34,8 +34,8 @@ const SignUp = () => {
           password: val.password,
         });
 
-        localStorage.setItem("user", JSON.stringify(res.data.data));
-        router.replace("/chat");
+        sessionStorage.setItem("user", JSON.stringify(res.data.data));
+        router.replace("/chats");
       } catch (error) {
         if (error instanceof AxiosError) {
           alert(error.response?.data?.message);

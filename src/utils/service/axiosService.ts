@@ -8,7 +8,7 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const getUser: string | null = localStorage.getItem("user");
+  const getUser: string | null = sessionStorage.getItem("user");
   if (getUser) {
     const parseUser: IUser = JSON.parse(getUser);
     config.headers.Authorization = `Bearer ${parseUser?.token}`;

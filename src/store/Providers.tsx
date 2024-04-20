@@ -7,7 +7,7 @@ import { setUserInfo } from "./slices/userSlice";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    const getUserFromLocalStorage = localStorage.getItem("user");
+    const getUserFromLocalStorage = sessionStorage.getItem("user");
     if (getUserFromLocalStorage) {
       const parseUser: IUser = JSON.parse(getUserFromLocalStorage);
       store.dispatch(setUserInfo(parseUser));

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { useEffect, useState } from "react";
 import { socket } from "@/socket/socket";
@@ -8,6 +9,7 @@ import { AxiosError } from "axios";
 import { IGroup, IMessage } from "@/utils/types/types";
 import { useSelector } from "react-redux";
 import { IRootState } from "@/store/store";
+import ChatData from "@/components/ChatData";
 
 const ContactUs: React.FC = (): React.JSX.Element => {
   const [message, setMessage] = useState<string>("");
@@ -26,15 +28,19 @@ const ContactUs: React.FC = (): React.JSX.Element => {
       setIsConnected(false);
       console.log("client is disconnected");
     });
-    socket.on("message", (data) => {
+    socket.on("message", (data: IMessage[]) => {
+      setGroupMessages(data);
       console.log("messageData", data);
     });
     socket.on("message-error", (data) => {
       console.log("message error", data);
       alert(data?.message);
     });
+  }, []);
+
+  useEffect(() => {
     getGroupMessageById();
-  }, [groupMessages]);
+  }, []);
 
   // send message function
   const handleSendMessage = () => {
@@ -43,6 +49,7 @@ const ContactUs: React.FC = (): React.JSX.Element => {
       text: message,
       senderId: userInfo?._id,
     };
+    setMessage("");
     socket.emit("message", createMessageObject);
   };
 
@@ -68,7 +75,9 @@ const ContactUs: React.FC = (): React.JSX.Element => {
       <div className="h-[70vh] flex flex-col gap-y-6 border-2 w-3/4 bg-slate-50 mx-auto mt-14 rounded-3xl p-4">
         <div className="message-area flex-grow">
           {groupMessages &&
-            groupMessages?.map((messageObj) => messageObj.text)?.join(", ")}
+            groupMessages?.map((messageObj, index) => (
+              <ChatData key={index} {...messageObj} />
+            ))}
         </div>
         <div className="flex items-center gap-4 h-9">
           <input

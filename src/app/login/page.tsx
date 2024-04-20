@@ -5,6 +5,7 @@ import { useFormik } from "formik";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { ICommonResponse, IUser } from "@/utils/types/types";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Login = () => {
   const router = useRouter();
@@ -31,8 +32,8 @@ const Login = () => {
           password: val.password,
         });
 
-        localStorage.setItem("user", JSON.stringify(res.data.data));
-        router.replace("/chat");
+        sessionStorage.setItem("user", JSON.stringify(res.data.data));
+        router.replace("/chats");
       } catch (error) {
         if (error instanceof AxiosError) {
           alert(error.response?.data?.message);
@@ -123,12 +124,12 @@ const Login = () => {
 
         <p className="mt-10 text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <a
-            href="#"
+          <Link
+            href="signup"
             className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
           >
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
     </div>
