@@ -10,12 +10,13 @@ import { IGroup, IMessage } from "@/utils/types/types";
 import { useSelector } from "react-redux";
 import { IRootState } from "@/store/store";
 import ChatData from "@/components/ChatData";
+import ChatRoomHeader from "@/components/ChatRoomHeader";
 
-const ContactUs: React.FC = (): React.JSX.Element => {
+const ChatRoom: React.FC = (): React.JSX.Element => {
   const [message, setMessage] = useState<string>("");
   const [isConnected, setIsConnected] = useState(socket.connected);
   // const [receivedMessage, setReceivedMessage] = useState({} as IGroup);
-  const [groupMessages, setGroupMessages] = useState<IMessage[]>([]);
+  const [groupDetails, setGroupDetails] = useState<IGroup>({} as IGroup);
   const { userInfo } = useSelector((state: IRootState) => state.user);
 
   const params = useParams<{ id: string }>();
@@ -28,8 +29,8 @@ const ContactUs: React.FC = (): React.JSX.Element => {
       setIsConnected(false);
       console.log("client is disconnected");
     });
-    socket.on("message", (data: IMessage[]) => {
-      setGroupMessages(data);
+    socket.on("message", (data: IGroup) => {
+      setGroupDetails(data);
       console.log("messageData", data);
     });
     socket.on("message-error", (data) => {
@@ -43,7 +44,8 @@ const ContactUs: React.FC = (): React.JSX.Element => {
   }, []);
 
   // send message function
-  const handleSendMessage = () => {
+  const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const createMessageObject: IMessage = {
       groupId: params?.id,
       text: message,
@@ -60,7 +62,7 @@ const ContactUs: React.FC = (): React.JSX.Element => {
           groupId: params?.id,
         },
       });
-      res?.data?.data?.messages && setGroupMessages(res?.data?.data?.messages);
+      res?.data?.data && setGroupDetails(res?.data?.data);
     } catch (error) {
       console.log("errror while fetch group message", error);
       if (error instanceof AxiosError) {
@@ -70,34 +72,34 @@ const ContactUs: React.FC = (): React.JSX.Element => {
   };
 
   return (
-    <div>
-      <h1 className="text-center text-5xl">Chat With Us</h1>
-      <div className="h-[70vh] flex flex-col gap-y-6 border-2 w-3/4 bg-slate-50 mx-auto mt-14 rounded-3xl p-4">
-        <div className="message-area flex-grow">
-          {groupMessages &&
-            groupMessages?.map((messageObj, index) => (
-              <ChatData key={index} {...messageObj} />
-            ))}
-        </div>
-        <div className="flex items-center gap-4 h-9">
-          <input
-            type="text"
-            className="border-2 border-slate-200 rounded-lg flex-grow h-9 ps-3 outline-none focus:border-slate-400"
-            placeholder="type your message"
-            onChange={(e) => setMessage(e.target.value)}
-            value={message}
-          />
-          <button
-            className="bg-blue-600 text-white w-24 h-9 rounded-lg active:bg-blue-700 hover:bg-blue-500 disabled:bg-blue-300"
-            disabled={!message}
-            onClick={handleSendMessage}
-          >
-            Send
-          </button>
-        </div>
+    <div className="h-screen flex flex-col border w-full sm:w-3/4 border-slate-100 bg-slate-50 mx-auto">
+      <ChatRoomHeader {...groupDetails} />
+      <div className="flex-grow px-3 overflow-auto no-scrollbar">
+        {groupDetails?.messages &&
+          groupDetails?.messages?.map((messageObj, index) => (
+            <ChatData key={index} {...messageObj} />
+          ))}
       </div>
+      <form
+        onSubmit={handleSendMessage}
+        className="flex items-center gap-4 py-3 px-4 bg-zinc-100 shadow border-t border-t-gray-200"
+      >
+        <input
+          type="text"
+          className="border-slate-200 rounded flex-grow h-11 px-3 outline-none shadow-md"
+          placeholder="type your message"
+          onChange={(e) => setMessage(e.target.value)}
+          value={message}
+        />
+        <input
+          className="bg-blue-600 text-white w-24 h-11 shadow rounded active:bg-blue-700 hover:bg-blue-500 disabled:bg-blue-300"
+          disabled={!message}
+          value={"Send"}
+          type="submit"
+        />
+      </form>
     </div>
   );
 };
 
-export default ContactUs;
+export default ChatRoom;
