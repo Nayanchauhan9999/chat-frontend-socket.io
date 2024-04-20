@@ -40,7 +40,7 @@ const ChatData: React.FC<IChatData> = ({
       >
         <div>
           <p className="text-base">{text}</p>
-          <p className="text-gray-400 text-xs text-end">
+          <p className="text-gray-400 font-mono text-[0.6rem] text-end">
             {createdAt ? convertToTimeFormat(createdAt) : null}
           </p>
         </div>
