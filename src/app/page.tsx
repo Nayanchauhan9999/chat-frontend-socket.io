@@ -6,11 +6,11 @@ export default function Home() {
       <div>
         <Link href={"/file-upload"}>File Upload Demo</Link>
         <br />
-        <Link href={"/chat"}>Contact Us</Link>
+        <Link href={"/chats"}>All Chats</Link>
         <br />
         <Link href={"/login"}>Login</Link>
         <br />
-        <Link href={"/signup"}>Sing Up</Link>
+        <Link href={"/signup"}>Sign Up</Link>
       </div>
     </main>
   );

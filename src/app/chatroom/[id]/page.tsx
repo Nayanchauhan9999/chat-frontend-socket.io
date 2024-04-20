@@ -1,11 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { socket } from "@/socket/socket";
+import { useParams } from "next/navigation";
+import { GET } from "@/utils/service/axiosService";
+import { GROUP_MESSAGES } from "@/utils/service/endpoints";
+import { AxiosError } from "axios";
+import { IGroup, IMessage } from "@/utils/types/types";
+import { useSelector } from "react-redux";
+import { IRootState } from "@/store/store";
 
 const ContactUs: React.FC = (): React.JSX.Element => {
   const [message, setMessage] = useState<string>("");
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [receivedMessage, setReceivedMessage] = useState("");
+  // const [receivedMessage, setReceivedMessage] = useState({} as IGroup);
+  const [groupMessages, setGroupMessages] = useState<IMessage[]>([]);
+  const { userInfo } = useSelector((state: IRootState) => state.user);
+
+  const params = useParams<{ id: string }>();
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -16,12 +27,39 @@ const ContactUs: React.FC = (): React.JSX.Element => {
       console.log("client is disconnected");
     });
     socket.on("message", (data) => {
-      console.log("messageData", setReceivedMessage(data));
+      console.log("messageData", data);
     });
-  }, []);
+    socket.on("message-error", (data) => {
+      console.log("message error", data);
+      alert(data?.message);
+    });
+    getGroupMessageById();
+  }, [groupMessages]);
+
   // send message function
   const handleSendMessage = () => {
-    socket.emit("message", message);
+    const createMessageObject: IMessage = {
+      groupId: params?.id,
+      text: message,
+      senderId: userInfo?._id,
+    };
+    socket.emit("message", createMessageObject);
+  };
+
+  const getGroupMessageById = async () => {
+    try {
+      const res = await GET<IGroup>(GROUP_MESSAGES, {
+        params: {
+          groupId: params?.id,
+        },
+      });
+      res?.data?.data?.messages && setGroupMessages(res?.data?.data?.messages);
+    } catch (error) {
+      console.log("errror while fetch group message", error);
+      if (error instanceof AxiosError) {
+        alert(JSON.stringify(error?.response?.data));
+      }
+    }
   };
 
   return (
@@ -29,7 +67,8 @@ const ContactUs: React.FC = (): React.JSX.Element => {
       <h1 className="text-center text-5xl">Chat With Us</h1>
       <div className="h-[70vh] flex flex-col gap-y-6 border-2 w-3/4 bg-slate-50 mx-auto mt-14 rounded-3xl p-4">
         <div className="message-area flex-grow">
-          {receivedMessage && receivedMessage}
+          {groupMessages &&
+            groupMessages?.map((messageObj) => messageObj.text)?.join(", ")}
         </div>
         <div className="flex items-center gap-4 h-9">
           <input
